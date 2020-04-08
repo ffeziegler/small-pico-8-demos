@@ -2,19 +2,15 @@ pico-8 cartridge // http://www.pico-8.com
 version 18
 __lua__
 flame_particles = {}
-smoke_particles = {}
-particle_types = {flame_particles,
- smoke_particles}
 
 function _init()
- foreach(particle_types,
-  add_new_prtcls)
+ add_new_prtcls()
 end
 
-function add_new_prtcls(prtcls)
+function add_new_prtcls()
   for i = 0, 8 do
   
-   add(prtcls, {
+   add(flame_particles, {
     x = 60+i,
     y = 87 - (rnd(2)-1),
     col = 10,
