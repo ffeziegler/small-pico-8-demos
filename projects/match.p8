@@ -17,7 +17,7 @@ function add_new_prtcls()
   
   add(particles, {
    x = 60+i,
-   y = 87 - (rnd(2)-1),
+   y = 87,
    col = 10,
    kill_y = 65 + ((i-4) ^ 2)/1.5})
   
@@ -67,7 +67,7 @@ function update_colour(prtcl)
   prtcl.col = 8
   
  --orange at flame mid
- elseif (prtcl.y <= prtcl.kill_y + 10)
+ elseif (prtcl.y <= prtcl.kill_y + 8)
  and (prtcl.col != 13) then
   prtcl.col = 9
  end
