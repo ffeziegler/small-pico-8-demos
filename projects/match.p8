@@ -6,6 +6,9 @@ __lua__
 --holds flames and smoke
 particles = {}
 
+--top of matchstick
+match_top = 81
+
 function _init()
  --initialise base layer of
  --flame
@@ -17,7 +20,7 @@ function add_new_prtcls()
   
   add(particles, {
    x = 60+i,
-   y = 87,
+   y = match_top + 6,
    col = 10,
    kill_y = 65 + ((i-4) ^ 2)/1.5})
   
@@ -41,7 +44,7 @@ end
 
 --delete particle at height cap
 function check_life(prtcl) 
- if (prtcl.y <= prtcl.kill_y) then
+ if (prtcl.y <= prtcl.kill_y  + (match_top - 81)) then
   
   --occasionally generate
   --smoke particles
@@ -54,6 +57,7 @@ function check_life(prtcl)
   end
   
   del(particles, prtcl)
+  match_top += 0.001
   
  end
 end
@@ -62,12 +66,12 @@ end
 --if not smoke
 function update_colour(prtcl)
  --red at flame tip
- if (prtcl.y <= prtcl.kill_y + 5)
+ if (prtcl.y <= (prtcl.kill_y + 5) + (match_top - 81))
  and (prtcl.col != 13) then
   prtcl.col = 8
   
  --orange at flame mid
- elseif (prtcl.y <= prtcl.kill_y + 8)
+ elseif (prtcl.y <= (prtcl.kill_y + 8) + (match_top - 81))
  and (prtcl.col != 13) then
   prtcl.col = 9
  end
@@ -82,13 +86,13 @@ end
 
 function draw_light()
  --darker light
- circfill(64,75,
+ circfill(64,match_top-6,
   --grow with the flame
   (1800/particles[1].y/1.4),
   5)
   
  --lighter light
- circfill(64,75,
+ circfill(64,match_top-6,
   --grow with the flame
   --+ flicker
   (1500/particles[1].y/1.4)+rnd(1),
@@ -96,11 +100,22 @@ function draw_light()
 end
 
 function draw_stick()
- --body
- rectfill(62,85,66, 128, 15)
+ --burnt body
+ rectfill(63,85,65,match_top+4,5)
+
+ --unburnt body
+ rectfill(62,match_top+4,66, 128, 15)
  
  --red tip
- rectfill(62,81,66, 85, 8)
+ --turns darker after full flame
+ if (match_top > 81.9) then
+  rectfill(62,81,66,85, 5)
+ elseif (match_top > 81.1) then
+  rectfill(62,81,66,85, 2)
+ else
+  rectfill(62,81,66, 85, 8)
+ end
+ 
 end
 
 function draw_particles()
