@@ -8,29 +8,31 @@ bg_col=0
 drips={}
 
 function _init()
-	cls(bg_col)
+ cls(bg_col)
+
+ --populate drips
+ for x = 0, 127 do
+  add(drips, {
+   x_pos = 0,
+   y_pos = 0,
+   col = 0,
+   spd = 0})
+ end
 	
-	--populate drips
-	for x = 0, 127 do
-	 add(drips, {x_pos = 0,
-	 												y_pos = 0,
-													 col = 0,
-													 spd = 0})
-	end
-	
-	gen_drips()
+ gen_drips()
 end
 
 --initialise/reset drip values
 function gen_drips(new_col)
-	for x = 1, 128 do
-	 drips[x] = {x_pos = x-1,
-	 												y_pos = -2,
-	 												--uses a specific
-	 												--colour, if given
-													 col = new_col or flr(rnd(14)) + 1,
-													 spd = rnd(1)+0.3}
-	end
+ for x = 1, 128 do
+  drips[x] = {
+   x_pos = x-1,
+   y_pos = -2,
+   --uses a specific
+   --colour, if given
+   col = new_col or flr(rnd(14)) + 1,
+   spd = rnd(1)+0.3}
+ end
 end
 
 function _update()
@@ -51,7 +53,7 @@ end
 --colour modes
 function update_col(drip)
  if (flr(rnd(50))+1 == 1) then
-	 drip.col = flr(rnd(14)) + 1
+  drip.col = flr(rnd(14)) + 1
  end
 end
 
@@ -62,9 +64,9 @@ end
 --paints a pixel at the current
 --location of the drip
 function draw_drip(drip)
-	pset(drip.x_pos,
-						drip.y_pos,
-						drip.col)
+ pset(drip.x_pos,
+ drip.y_pos,
+ drip.col)
 end
 -->8
 --button presses
@@ -75,31 +77,30 @@ function update_drip_col()
  if (btnp(2)) then
   --below max cap
   if (drip_col < 16) then
-  	drip_col += 1
+   drip_col += 1
   	
-  	--if in rainbow mode,
-  	--randomise first colour
-  	if (drip_col > 15) then
-  	 for v in all(drips) do
-	  		v.col = flr(rnd(14)) + 1
-	  	end
-  	else
-  	 for v in all(drips) do
-	  		v.col = drip_col
-	  	end
-	 	end
+   --if in rainbow mode,
+   --randomise first colour
+   if (drip_col > 15) then
+    for v in all(drips) do
+     v.col = flr(rnd(14)) + 1
+    end
+   else
+    for v in all(drips) do
+     v.col = drip_col
+    end
+   end
   end
   reset_screen()
-  
+
  --down pressed
  elseif (btnp(3)) then
   --above min cap
   if (drip_col > 0) then
-  	drip_col -= 1
-  	for v in all(drips) do
-  	 v.col = drip_col
-  	end
-  	
+   drip_col -= 1
+   for v in all(drips) do
+    v.col = drip_col
+   end
   end
   reset_screen()
  end
@@ -107,23 +108,23 @@ end
 
 --changes background colour
 function update_bg_col()
-	--left pressed
+ --left pressed
  if (btnp(0)) then
   if (bg_col > 0) then
    original = bg_col
    bg_col -= 1
    update_bg(original, bg_col)
-   
+
    foreach(drips,restore_drips)
   end
-  
+
  --right pressed
  elseif (btnp(1)) then
   if (bg_col < 15) then
    original = bg_col
    bg_col += 1
    update_bg(original, bg_col)
-   
+
    foreach(drips,restore_drips)
   end
  end
@@ -150,10 +151,10 @@ end
 --colour when bg changes
 function restore_drips(drip)
  if (drip_col < 16) then
-	 for y = 0, drip.y_pos+3 do
-	  pset(drip.x_pos, y, drip_col)
-	 end
-	end
+  for y = 0, drip.y_pos+3 do
+   pset(drip.x_pos, y, drip_col)
+  end
+ end
 end
 
 --reset drips and clear trails
@@ -161,7 +162,7 @@ function reset_screen()
   if (drip_col > 15) then
    gen_drips()
   else
-  	gen_drips(drip_col)
+   gen_drips(drip_col)
   end
   cls(bg_col)
 end
