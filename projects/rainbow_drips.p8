@@ -40,7 +40,7 @@ function _update()
  update_drip_col()
  foreach(drips,travel)
  if (drip_col > 15) then
- 	foreach(drips,update_col)
+  foreach(drips,update_col)
  end
 end
 
