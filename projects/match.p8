@@ -20,7 +20,7 @@ function add_new_prtcls()
   
   add(particles, {
    x = 60+i,
-   y = match_top + 6,
+   y = flr(match_top) + 6,
    col = 10,
    kill_y = 65 + ((i-4) ^ 2)/1.5})
   
@@ -57,6 +57,8 @@ function check_life(prtcl)
   end
   
   del(particles, prtcl)
+  
+  --slowly reduce unburnt match
   match_top += 0.001
   
  end
@@ -108,9 +110,9 @@ function draw_stick()
  
  --red tip
  --turns darker after full flame
- if (match_top > 81.9) then
+ if (match_top > 81.75) then
   rectfill(62,81,66,85, 5)
- elseif (match_top > 81.1) then
+ elseif (match_top > 81) then
   rectfill(62,81,66,85, 2)
  else
   rectfill(62,81,66, 85, 8)
