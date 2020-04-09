@@ -104,15 +104,16 @@ end
 function draw_stick()
  --burnt body
  rectfill(63,85,65,match_top+4,5)
+ rectfill(62,match_top+3,66,match_top+4,5)
 
  --unburnt body
- rectfill(62,match_top+4,66, 128, 15)
+ rectfill(62,match_top+5,66, 128, 15)
  
  --red tip
  --turns darker after full flame
- if (match_top > 81.75) then
+ if (match_top > 81.85) then
   rectfill(62,81,66,85, 5)
- elseif (match_top > 81) then
+ elseif (match_top > 81.2) then
   rectfill(62,81,66,85, 2)
  else
   rectfill(62,81,66, 85, 8)
@@ -128,6 +129,14 @@ function draw_particles()
   prtcl.y,
   prtcl.col)
  end
+ 
+ --rounds the base of the flame
+ pset(60,
+  match_top+5,
+  6)
+ pset(68,
+  match_top+5,
+  6)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
