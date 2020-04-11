@@ -17,7 +17,7 @@ function _init()
   speed = 0,
   prev_y = 0})
 
- for i = 0, 126 do
+ for i = 0, 62 do
   add(drips, {
    x_pos = 0,
    y_pos = 0,
@@ -33,7 +33,7 @@ end
 --establishes base values for
 --each drip
 function gen_drips()
- for i = 2, 128 do
+ for i = 2, 64 do
   drips[i] = {x_pos = i - 1,
    y_pos = -2,
    viscosity = 0,
@@ -84,20 +84,23 @@ function _draw()
  foreach(drips,draw_drip)
 
  print("press ctrl+r to reset",
-  0,
-  123,
-  7)
+  23,
+  15,
+  0)
 end
 
 function draw_drip(drip)
- line(drip.x_pos,
+ --forest body
+ rectfill((drip.x_pos+1)*2,
   -1,
-  drip.x_pos,
+  ((drip.x_pos+1)*2)+1,
   drip.y_pos-(20-drip.viscosity),
   3)
- line(drip.x_pos,
+  
+ --lime tips
+ rectfill((drip.x_pos+1)*2,
   drip.prev_y,
-  drip.x_pos,
+  ((drip.x_pos+1)*2)+1,
   drip.y_pos,
   11)
 end
