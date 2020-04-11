@@ -84,9 +84,9 @@ function _draw()
  foreach(drips,draw_drip)
 
  print("press ctrl+r to reset",
-  0,
-  123,
-  7)
+  23,
+  15,
+  0)
 end
 
 function draw_drip(drip)

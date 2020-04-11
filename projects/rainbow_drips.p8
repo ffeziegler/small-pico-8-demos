@@ -59,6 +59,16 @@ end
 
 function _draw()
  foreach(drips,draw_drip)
+ 
+ --overlay controls
+ print("press ⬆️⬇️ to change drips",
+  5,
+  110,
+  bg_col)
+ print("press ⬅️➡️ to change bg",
+  5,
+  118,
+  bg_col)
 end
 
 --paints a pixel at the current
