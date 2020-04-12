@@ -40,9 +40,9 @@ function _update()
  --existing worm off screen
  if (worm.x < 128) then
   eat_dirt()
- else
-  reset_worm()
+ elseif (soil_class.top < 127) then
   collapse_dirt()
+  reset_worm()
  end
 end
 
@@ -61,10 +61,17 @@ end
 function reset_worm()
  worm.x = -10
  
- --ensure in soil
- repeat 
-  worm.y = flr(rnd(129))
- until worm.y > soil_class.top
+ --worm offscreen if only one
+ --row of dirt remains
+ if (soil_class.top <= 126) then
+  --ensure in soil
+  --and under top layer
+  repeat
+   worm.y = ceil(rnd(127))
+  until worm.y > soil_class.top
+ else
+  worm.y = -1
+ end
  
  worm.speed = ceil(rnd(90))+10
 end
@@ -74,13 +81,13 @@ function collapse_dirt()
  for i = 0, 127 do
   soil_class.soil[soil_class.top][i] = 0
  end
+
+ --lower topmost layer
+ soil_class.top += 1
  
  --remake all soil below
  --topmost layer
  reset_soil()
-
- --lower topmost layer
- soil_class.top += 1
 end
 
 function _draw()
