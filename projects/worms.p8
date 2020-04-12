@@ -27,8 +27,12 @@ end
 function reset_soil()
  for x = 0, 127 do
   soil_class.soil[x] = {}
-  for y = soil_class.top, 127 do
-   soil_class.soil[x][y] = 1
+  for y = 0, 127 do
+   if (y < soil_class.top) then
+    soil_class.soil[x][y] = 12
+   else
+    soil_class.soil[x][y] = 4
+   end
   end
  end
 end
@@ -77,11 +81,6 @@ function reset_worm()
 end
 
 function collapse_dirt()
- --make topmost layer deleted
- for i = 0, 127 do
-  soil_class.soil[soil_class.top][i] = 0
- end
-
  --lower topmost layer
  soil_class.top += 1
  
@@ -91,7 +90,6 @@ function collapse_dirt()
 end
 
 function _draw()
- cls(12) --sky background
  draw_soil()
  draw_worm()
 end
@@ -101,9 +99,7 @@ function draw_soil()
  --from matrix
  for x in pairs(soil_class.soil) do
   for y in pairs (soil_class.soil) do
-   if (soil_class.soil[x][y] == 1) then
-    pset(x, y, 4)
-   end
+   pset(x, y, soil_class.soil[x][y])
   end
  end
 end
