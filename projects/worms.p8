@@ -4,23 +4,26 @@ __lua__
 --main
 
 function _init()
- --holds matrix of all soil;
+ --holds matrix of all matter;
  --a record of top layer;
  --and a counter for collapsing
- soil_class = {
-  soil = {},
-  top = 1,
+ matter_class = {
+  matter = {},
+  topsoil = 1,
   collapse_col = 0}
- 
- --populates soil matrix for 
+ --populates matter matrix for 
  --full screen
- reset_soil(0, 127)
+ reset_matter(0, 127)
  
  worm = {
-  x = -10,
-  y = 50,
-  speed = 100}
-  
+  x = 0,
+  y = 0,
+  start_y = 0,
+  dest_y = 0,
+  speed = 0}
+ --generate expected values
+ reset_worm()
+ 
  state = "worm"
 end
 
@@ -33,9 +36,9 @@ function _update()
   --existing worm off screen
   if (worm.x < 128) then
    eat_soil()
-  elseif (soil_class.top < 127) then
+  elseif (matter_class.topsoil < 127) then
    --lower topmost layer
-   soil_class.top += 1
+   matter_class.topsoil += 1
    
    reset_worm()
    
@@ -44,34 +47,37 @@ function _update()
  
  --handles collapsing soil
  elseif (state == "soil") then
-  if (soil_class.collapse_col < 128) then 
+  if (matter_class.collapse_col < 128) then 
    --lower a column each draw
    --cycle
-   reset_soil(soil_class.collapse_col, soil_class.collapse_col)
-   soil_class.collapse_col += 1
+   reset_matter(matter_class.collapse_col, matter_class.collapse_col)
+   matter_class.collapse_col += 1
   else
-   soil_class.collapse_col = 0
+   matter_class.collapse_col = 0
    state = "worm"
   end
  end
 end
 
 function _draw()
- draw_soil()
+ draw_matter()
  draw_worm()
 end
 -->8
 --worm
 
 function move_worm()
- worm.x += worm.speed/100
+ worm.x += worm.speed
+ worm.y += ((worm.dest_y - worm.start_y) 
+  / 127)
+  * worm.speed
 end
 
 function eat_soil()
  --mark soil at current worm
  --position as deleted
  if (worm.x >= 0) then
-  soil_class.soil[flr(worm.x)][flr(worm.y)] = 0
+  matter_class.matter[flr(worm.x)][flr(worm.y)] = 0
  end
 end
 
@@ -80,17 +86,26 @@ function reset_worm()
  
  --worm offscreen if only one
  --row of dirt remains
- if (soil_class.top <= 126) then
-  --ensure in soil
-  --and under top layer
+ if (matter_class.topsoil <= 126) then  
   repeat
-   worm.y = ceil(rnd(127))
-  until worm.y > soil_class.top
+   worm.start_y = ceil(rnd(127))
+   --ensure in soil
+   --and under top layer
+  until worm.start_y > matter_class.topsoil
+  worm.y = worm.start_y
+  
+  repeat
+   worm.dest_y = ceil(rnd(127))
+   --ensure not too steep
+  until ((worm.dest_y > worm.start_y-50)
+  and (worm.dest_y < worm.start_y+50))
+  and (worm.dest_y > matter_class.topsoil)
+  
  else
   worm.y = -1
  end
  
- worm.speed = ceil(rnd(90))+10
+ worm.speed = (ceil(rnd(70))+30)/100
 end
 
 function draw_worm()
@@ -99,29 +114,31 @@ function draw_worm()
   14)
 end
 -->8
---soil
+--matter
 
 --populate each pixel
 --with soil or sky
-function reset_soil(a, b)
+function reset_matter(a, b)
  for x = a, b do
-  soil_class.soil[x] = {}
+  matter_class.matter[x] = {}
   for y = 0, 127 do
-   if (y < soil_class.top) then
-    soil_class.soil[x][y] = 12
+   if (y < matter_class.topsoil) then
+    --sky
+    matter_class.matter[x][y] = 12
    else
-    soil_class.soil[x][y] = 4
+    --soil
+    matter_class.matter[x][y] = 4
    end
   end
  end
 end
 
-function draw_soil()
- --draw dirt pixel by pixel
+function draw_matter()
+ --draw matter pixel by pixel
  --from matrix
- for x in pairs(soil_class.soil) do
-  for y in pairs (soil_class.soil) do
-   pset(x, y, soil_class.soil[x][y])
+ for x in pairs(matter_class.matter) do
+  for y in pairs (matter_class.matter) do
+   pset(x, y, matter_class.matter[x][y])
   end
  end
 end
