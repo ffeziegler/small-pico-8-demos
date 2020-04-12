@@ -9,7 +9,7 @@ function _init()
  --and a counter for collapsing
  matter_class = {
   matter = {},
-  topsoil = 1,
+  grass_tips = 1,
   collapse_col = 0}
  --populates matter matrix for 
  --full screen
@@ -36,9 +36,12 @@ function _update()
   --existing worm off screen
   if (worm.x < 128) then
    eat_soil()
-  elseif (matter_class.topsoil < 127) then
+  
+  --controls matter cap of
+  --when worms stop spawning
+  elseif (matter_class.grass_tips < 124) then
    --lower topmost layer
-   matter_class.topsoil += 1
+   matter_class.grass_tips += 1
    
    reset_worm()
    
@@ -84,24 +87,25 @@ end
 function reset_worm()
  worm.x = -10
  
- --worm offscreen if only one
- --row of dirt remains
- if (matter_class.topsoil <= 126) then  
+ --only spawns worm if space
+ if (matter_class.grass_tips <= 122) then  
   repeat
    worm.start_y = ceil(rnd(127))
-   --ensure in soil
+   --ensures worm in soil
    --and under top layer
-  until worm.start_y > matter_class.topsoil
+  until worm.start_y > matter_class.grass_tips + 4
   worm.y = worm.start_y
   
   repeat
    worm.dest_y = ceil(rnd(127))
-   --ensure not too steep
+   --ensures path not too steep
   until ((worm.dest_y > worm.start_y-50)
   and (worm.dest_y < worm.start_y+50))
-  and (worm.dest_y > matter_class.topsoil)
+  and (worm.dest_y > matter_class.grass_tips + 4)
   
  else
+  --worm offscreen if only grass
+  --and one row of dirt remains
   worm.y = -1
  end
  
@@ -122,12 +126,17 @@ function reset_matter(a, b)
  for x = a, b do
   matter_class.matter[x] = {}
   for y = 0, 127 do
-   if (y < matter_class.topsoil) then
+   if (y < matter_class.grass_tips) then
     --sky
     matter_class.matter[x][y] = 12
    else
-    --soil
-    matter_class.matter[x][y] = 4
+    if (y < matter_class.grass_tips+3) then
+     --grass
+     matter_class.matter[x][y] = 3
+    else
+     --soil
+     matter_class.matter[x][y] = 4
+    end
    end
   end
  end
