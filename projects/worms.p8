@@ -4,57 +4,70 @@ __lua__
 --main
 
 function _init()
- 
- --holds matrix of all soil
- --and a record of top layer
+ --holds matrix of all soil;
+ --a record of top layer;
+ --and a counter for collapsing
  soil_class = {
   soil = {},
-  top = 1}
+  top = 1,
+  collapse_col = 0}
  
  --populates soil matrix for 
  --full screen
- reset_soil()
+ reset_soil(0, 127)
  
  worm = {
   x = -10,
   y = 50,
   speed = 100}
- 
+  
+ state = "worm"
 end
 
---populate each valid pixel
---with soil
-function reset_soil()
- for x = 0, 127 do
-  soil_class.soil[x] = {}
-  for y = 0, 127 do
-   if (y < soil_class.top) then
-    soil_class.soil[x][y] = 12
-   else
-    soil_class.soil[x][y] = 4
-   end
+function _update()
+ --handles worm position
+ if (state == "worm") then
+  move_worm()
+ 
+  --respawn a new worm when
+  --existing worm off screen
+  if (worm.x < 128) then
+   eat_soil()
+  elseif (soil_class.top < 127) then
+   --lower topmost layer
+   soil_class.top += 1
+   
+   reset_worm()
+   
+   state = "soil"
+  end
+ 
+ --handles collapsing soil
+ elseif (state == "soil") then
+  if (soil_class.collapse_col < 128) then 
+   --lower a column each draw
+   --cycle
+   reset_soil(soil_class.collapse_col, soil_class.collapse_col)
+   soil_class.collapse_col += 1
+  else
+   soil_class.collapse_col = 0
+   state = "worm"
   end
  end
 end
 
-function _update()
- move_worm()
- 
- --respawn a new worm when
- --existing worm off screen
- if (worm.x < 128) then
-  eat_dirt()
- elseif (soil_class.top < 127) then
-  collapse_dirt()
-  reset_worm()
- end
+function _draw()
+ draw_soil()
+ draw_worm()
 end
+-->8
+--worm
 
 function move_worm()
  worm.x += worm.speed/100
 end
 
-function eat_dirt()
+function eat_soil()
  --mark soil at current worm
  --position as deleted
  if (worm.x >= 0) then
@@ -80,18 +93,27 @@ function reset_worm()
  worm.speed = ceil(rnd(90))+10
 end
 
-function collapse_dirt()
- --lower topmost layer
- soil_class.top += 1
- 
- --remake all soil below
- --topmost layer
- reset_soil()
+function draw_worm()
+ pset(worm.x,
+  worm.y,
+  14)
 end
+-->8
+--soil
 
-function _draw()
- draw_soil()
- draw_worm()
+--populate each pixel
+--with soil or sky
+function reset_soil(a, b)
+ for x = a, b do
+  soil_class.soil[x] = {}
+  for y = 0, 127 do
+   if (y < soil_class.top) then
+    soil_class.soil[x][y] = 12
+   else
+    soil_class.soil[x][y] = 4
+   end
+  end
+ end
 end
 
 function draw_soil()
@@ -102,12 +124,6 @@ function draw_soil()
    pset(x, y, soil_class.soil[x][y])
   end
  end
-end
-
-function draw_worm()
- pset(worm.x,
-  worm.y,
-  14)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
