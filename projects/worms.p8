@@ -16,14 +16,40 @@ function _init()
  reset_matter(0, 127)
  
  worm = {
-  x = 0,
-  y = 0,
+ 	--doubly linked list for
+ 	--drawing worm as contiguous
+ 	--pixels
+  head = {
+   next_part = nil,
+   prev_part = nil,
+   x = -1,
+   y = -1},
   start_y = 0,
   dest_y = 0,
   speed = 0}
+  
  --generate expected values
  reset_worm()
  
+ --set list length and populate
+ --with coordinates that are
+ --off-screen
+ local current_part = worm.head
+ for i = 0, 13 do
+  current_part.next_part = {
+   next_part = nil,
+   prev_part = nil,
+   x = -1,
+   y = -1}
+  current_part.next_part.prev_part = current_part
+  current_part = current_part.next_part
+ end
+ --track the end of the list
+ tail = current_part
+
+ --start the scene by moving
+ --the worm rather than
+ --collapsing the soil
  state = "worm"
 end
 
@@ -34,7 +60,7 @@ function _update()
  
   --respawn a new worm when
   --existing worm off screen
-  if (worm.x < 128) then
+  if (worm.head.x < 200) then
    eat_soil()
   
   --controls matter cap of
@@ -70,31 +96,57 @@ end
 --worm
 
 function move_worm()
- worm.x += worm.speed
- worm.y += ((worm.dest_y - worm.start_y) 
+ update_head()
+ update_body() 
+end
+
+function update_head()
+ worm.head.x += worm.speed
+ 
+ --height relative to
+ --horizontal distance
+ --travelled
+ worm.head.y += ((worm.dest_y - worm.start_y) 
   / 127)
   * worm.speed
+end
+
+function update_body()
+ local current = tail
+ 
+ --work backwards through
+ --linked list until nil (index
+ --before head)
+ while current.prev_part do
+  --move all x and y values
+  --to the next part
+  current.x = current.prev_part.x
+  current.y = current.prev_part.y
+  current = current.prev_part
+ end
 end
 
 function eat_soil()
  --mark soil at current worm
  --position as deleted
- if (worm.x >= 0) then
-  matter_class.matter[flr(worm.x)][flr(worm.y)] = 0
+ if (worm.head.x >= 0)
+ and (worm.head.x < 128) then
+  matter_class.matter[flr(worm.head.x)][flr(worm.head.y)] = 0
  end
 end
 
 function reset_worm()
- worm.x = -10
+ worm.head.x = -1
  
  --only spawns worm if space
+ --in soil for it
  if (matter_class.grass_tips <= 122) then  
   repeat
    worm.start_y = ceil(rnd(127))
    --ensures worm in soil
    --and under top layer
   until worm.start_y > matter_class.grass_tips + 4
-  worm.y = worm.start_y
+  worm.head.y = worm.start_y
   
   repeat
    worm.dest_y = ceil(rnd(127))
@@ -106,16 +158,24 @@ function reset_worm()
  else
   --worm offscreen if only grass
   --and one row of dirt remains
-  worm.y = -1
+  worm.head.y = -1
  end
  
  worm.speed = (ceil(rnd(70))+30)/100
 end
 
 function draw_worm()
- pset(worm.x,
-  worm.y,
-  14)
+ local current_part = worm.head
+ 
+ --paint a pixel for each part
+ --of the worm, until nil (end
+ --of linked list)
+ while current_part do
+  pset(current_part.x,
+   current_part.y,
+   14)
+  current_part = current_part.next_part
+ end
 end
 -->8
 --matter
