@@ -166,6 +166,8 @@ end
 
 function draw_worm()
  local current_part = worm.head
+ 
+ --used for aesthetics
  local counter = 0
  local colour = 0
  
@@ -173,14 +175,20 @@ function draw_worm()
  --of the worm, until nil (end
  --of linked list)
  while current_part do
-  colour = 14
-  if (counter >= 4)
-  and (counter <= 6) then
+  --different colour for 
+  --clitellum
+  if (counter < 4)
+  or (counter > 6) then
+   colour = 14
+  else
    colour = 8
   end
+  
   pset(current_part.x,
    current_part.y,
    colour)
+   
+  --move to next section
   current_part = current_part.next_part
   counter += 1
  end
