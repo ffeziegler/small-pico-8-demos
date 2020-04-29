@@ -9,7 +9,7 @@ function _init()
  --and a counter for collapsing
  matter_class = {
   matter = {},
-  grass_tips = 1,
+  grass_tips = 30,
   collapse_col = 0}
  --populates matter matrix for 
  --full screen
@@ -65,7 +65,7 @@ function _update()
   
   --controls matter cap of
   --when worms stop spawning
-  elseif (matter_class.grass_tips < 124) then
+  elseif (matter_class.grass_tips < 118) then
    --lower topmost layer
    matter_class.grass_tips += 1
    
@@ -106,9 +106,10 @@ function update_head()
  --height relative to
  --horizontal distance
  --travelled
- worm.head.y += ((worm.dest_y - worm.start_y) 
+ worm.head.y += (((worm.dest_y - worm.start_y) 
   / 127)
-  * worm.speed
+  * worm.speed)
+  + sin(flr(worm.head.x)/5)/2
 end
 
 function update_body()
@@ -140,12 +141,12 @@ function reset_worm()
  
  --only spawns worm if space
  --in soil for it
- if (matter_class.grass_tips <= 123) then  
+ if (matter_class.grass_tips <= 117) then  
   repeat
    worm.start_y = ceil(rnd(127))
    --ensures worm in soil
    --and under top layer
-  until worm.start_y >= matter_class.grass_tips + 4
+  until worm.start_y >= matter_class.grass_tips + 10
   worm.head.y = worm.start_y
   
   repeat
@@ -153,12 +154,12 @@ function reset_worm()
    --ensures path not too steep
   until ((worm.dest_y > worm.start_y-50)
   and (worm.dest_y < worm.start_y+50))
-  and (worm.dest_y >= matter_class.grass_tips + 4)
+  and (worm.dest_y >= matter_class.grass_tips + 10)
   
  else
   --worm offscreen if only grass
   --and one row of dirt remains
-  worm.head.y = -1
+  worm.head.y = -100
  end
  
  worm.speed = (ceil(rnd(70))+30)/100
