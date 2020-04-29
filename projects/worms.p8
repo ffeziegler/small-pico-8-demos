@@ -131,7 +131,7 @@ function eat_soil()
  --position as deleted
  if (worm.head.x >= 0)
  and (worm.head.x < 128) then
-  matter_class.matter[flr(worm.head.x)][flr(worm.head.y)] = 0
+  matter_class.matter[flr(worm.head.x)][flr(worm.head.y+0.5)] = 0
  end
 end
 
@@ -140,12 +140,12 @@ function reset_worm()
  
  --only spawns worm if space
  --in soil for it
- if (matter_class.grass_tips <= 122) then  
+ if (matter_class.grass_tips <= 123) then  
   repeat
    worm.start_y = ceil(rnd(127))
    --ensures worm in soil
    --and under top layer
-  until worm.start_y > matter_class.grass_tips + 4
+  until worm.start_y >= matter_class.grass_tips + 4
   worm.head.y = worm.start_y
   
   repeat
@@ -153,7 +153,7 @@ function reset_worm()
    --ensures path not too steep
   until ((worm.dest_y > worm.start_y-50)
   and (worm.dest_y < worm.start_y+50))
-  and (worm.dest_y > matter_class.grass_tips + 4)
+  and (worm.dest_y >= matter_class.grass_tips + 4)
   
  else
   --worm offscreen if only grass
@@ -185,7 +185,10 @@ function draw_worm()
   end
   
   pset(current_part.x,
-   current_part.y,
+   --fixes new worms appearing
+   --to start 1 layer higher
+   --than they are programmed to
+   flr(current_part.y + 0.5),
    colour)
    
   --move to next section
