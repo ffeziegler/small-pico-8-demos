@@ -166,15 +166,23 @@ end
 
 function draw_worm()
  local current_part = worm.head
+ local counter = 0
+ local colour = 0
  
  --paint a pixel for each part
  --of the worm, until nil (end
  --of linked list)
  while current_part do
+  colour = 14
+  if (counter >= 4)
+  and (counter <= 6) then
+   colour = 8
+  end
   pset(current_part.x,
    current_part.y,
-   14)
+   colour)
   current_part = current_part.next_part
+  counter += 1
  end
 end
 -->8
