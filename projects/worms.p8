@@ -4,48 +4,8 @@ __lua__
 --main
 
 function _init()
- --holds matrix of all matter;
- --a record of top layer;
- --and a counter for collapsing
- matter_class = {
-  matter = {},
-  grass_tips = 30,
-  collapse_col = 0}
- --populates matter matrix for 
- --full screen
- reset_matter(0, 127)
- 
- worm = {
- 	--doubly linked list for
- 	--drawing worm as contiguous
- 	--pixels
-  head = {
-   next_part = nil,
-   prev_part = nil,
-   x = -1,
-   y = -1},
-  start_y = 0,
-  dest_y = 0,
-  speed = 0}
-  
- --generate expected values
- reset_worm()
- 
- --set list length and populate
- --with coordinates that are
- --off-screen
- local current_part = worm.head
- for i = 0, 13 do
-  current_part.next_part = {
-   next_part = nil,
-   prev_part = nil,
-   x = -1,
-   y = -1}
-  current_part.next_part.prev_part = current_part
-  current_part = current_part.next_part
- end
- --track the end of the list
- tail = current_part
+ init_matter()
+ init_worm()
 
  --start the scene by moving
  --the worm rather than
@@ -94,6 +54,45 @@ function _draw()
 end
 -->8
 --worm
+
+function init_worm()
+ worm = {
+  --doubly linked list for
+  --drawing worm as contiguous
+  --pixels
+  head = {
+   next_part = nil,
+   prev_part = nil,
+   x = -1,
+   y = -1},
+  start_y = 0,
+  dest_y = 0,
+  speed = 0}
+  
+ generate_base_values()
+end
+
+function generate_base_values()
+ --generate expected values
+ reset_worm()
+ 
+ --set list length and populate
+ --with coordinates that are
+ --off-screen
+ local current_part = worm.head
+ for i = 0, 13 do
+  current_part.next_part = {
+   next_part = nil,
+   prev_part = nil,
+   x = -1,
+   y = -1}
+  current_part.next_part.prev_part = current_part
+  current_part = current_part.next_part
+ end
+ 
+ --track the end of the list
+ tail = current_part
+end
 
 function move_worm()
  update_head()
@@ -199,6 +198,19 @@ function draw_worm()
 end
 -->8
 --matter
+
+function init_matter()
+ --holds matrix of all matter;
+ --a record of top layer;
+ --and a counter for collapsing
+ matter_class = {
+  matter = {},
+  grass_tips = 30,
+  collapse_col = 0}
+ --populates matter matrix for 
+ --full screen
+ reset_matter(0, 127)
+end
 
 --populate each pixel
 --with soil or sky
