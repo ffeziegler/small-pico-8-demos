@@ -1,50 +1,20 @@
 pico-8 cartridge // http://www.pico-8.com
 version 18
 __lua__
---main
+--main--------------------------
 
 function _init()
  init_matter()
  init_worm()
-
- --start the scene by moving
- --the worm rather than
- --collapsing the soil
+ 
  state = "worm"
 end
 
 function _update()
- --handles worm position
  if (state == "worm") then
-  move_worm()
- 
-  --respawn a new worm when
-  --existing worm off screen
-  if (worm.head.x < 200) then
-   eat_soil()
-  
-  --controls matter cap of
-  --when worms stop spawning
-  elseif (world.grass_tips < 118) then
-   --lower topmost layer
-   world.grass_tips += 1
-   
-   reset_worm()
-   
-   state = "soil"
-  end
- 
- --handles collapsing soil
+  update_worm()
  elseif (state == "soil") then
-  if (world.collapse_col < 128) then 
-   --lower a column each draw
-   --cycle
-   reset_matter(world.collapse_col, world.collapse_col)
-   world.collapse_col += 1
-  else
-   world.collapse_col = 0
-   state = "worm"
-  end
+  update_soil()
  end
 end
 
@@ -53,7 +23,7 @@ function _draw()
  draw_worm()
 end
 -->8
---worm
+--worm--------------------------
 
 function init_worm()
  worm = {
@@ -101,6 +71,26 @@ function generate_base_values()
  
  --track the end of the list
  tail = current_part
+end
+
+function update_worm()
+ move_worm()
+ 
+ --respawn a new worm when
+ --existing worm off screen
+ if (worm.head.x < 200) then
+  eat_soil()
+ 
+ --controls matter cap of
+ --when worms stop spawning
+ elseif (world.grass_tips < 118) then
+  --lower topmost layer
+  world.grass_tips += 1
+   
+  reset_worm()
+   
+  state = "soil"
+ end
 end
 
 function move_worm()
@@ -194,7 +184,7 @@ function draw_worm()
  end
 end
 -->8
---matter
+--matter------------------------
 
 function init_matter()
  --holds matrix of all matter;
@@ -207,6 +197,18 @@ function init_matter()
  --populates matter matrix for 
  --full screen
  reset_matter(0, 127)
+end
+
+function update_soil()
+ if (world.collapse_col < 128) then 
+  --lower a column each draw
+  --cycle
+  reset_matter(world.collapse_col, world.collapse_col)
+  world.collapse_col += 1
+ else
+  world.collapse_col = 0
+  state = "worm"
+ end
 end
 
 --populate each pixel
