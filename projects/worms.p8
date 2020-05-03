@@ -64,7 +64,8 @@ function init_worm()
    next_part = nil,
    prev_part = nil,
    x = -1,
-   y = -1},
+   y = -1,
+   col = 14},
   start_y = 0,
   dest_y = 0,
   speed = 0}
@@ -73,7 +74,7 @@ function init_worm()
 end
 
 function generate_base_values()
- --generate expected values
+ --generate non-list vals
  reset_worm()
  
  --set list length and populate
@@ -85,7 +86,15 @@ function generate_base_values()
    next_part = nil,
    prev_part = nil,
    x = -1,
-   y = -1}
+   y = -1,
+   col = 14}
+  
+  --sets different colour
+  --for clitellum
+  if (i>=3) and (i<=5) then
+   current_part.next_part.col = 8
+  end
+  
   current_part.next_part.prev_part = current_part
   current_part = current_part.next_part
  end
@@ -167,33 +176,18 @@ end
 function draw_worm()
  local current_part = worm.head
  
- --used for aesthetics
- local counter = 0
- local colour = 0
- 
  --paint a pixel for each part
  --of the worm, until nil (end
- --of linked list)
- while current_part do
-  --different colour for 
-  --clitellum
-  if (counter < 4)
-  or (counter > 6) then
-   colour = 14
-  else
-   colour = 8
-  end
-  
+ --of list)
+ while current_part do  
   pset(current_part.x,
    --fixes new worms appearing
    --to start 1 layer higher
    --than they are programmed to
    flr(current_part.y + 0.5),
-   colour)
+   current_part.col)
    
-  --move to next section
   current_part = current_part.next_part
-  counter += 1
  end
 end
 -->8
