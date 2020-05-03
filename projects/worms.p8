@@ -141,20 +141,7 @@ function reset_worm()
  --only spawns worm if space
  --in soil for it
  if (matter_class.grass_tips <= 117) then  
-  repeat
-   worm.start_y = ceil(rnd(127))
-   --ensures worm in soil
-   --and under top layer
-  until worm.start_y >= matter_class.grass_tips + 10
-  worm.head.y = worm.start_y
-  
-  repeat
-   worm.dest_y = ceil(rnd(127))
-   --ensures path not too steep
-  until ((worm.dest_y > worm.start_y-50)
-  and (worm.dest_y < worm.start_y+50))
-  and (worm.dest_y >= matter_class.grass_tips + 10)
-  
+  get_path()
  else
   --worm offscreen if only grass
   --and one row of dirt remains
@@ -162,6 +149,22 @@ function reset_worm()
  end
  
  worm.speed = (ceil(rnd(70))+30)/100
+end
+
+function get_path()
+ repeat
+  worm.start_y = ceil(rnd(127))
+ --ensures worm in soil
+ --and under top layer
+ until worm.start_y >= matter_class.grass_tips + 10
+ worm.head.y = worm.start_y
+  
+ repeat
+  worm.dest_y = ceil(rnd(127))
+ --ensures path not too steep
+ until ((worm.dest_y > worm.start_y-50)
+ and (worm.dest_y < worm.start_y+50))
+ and (worm.dest_y >= matter_class.grass_tips + 10)
 end
 
 function draw_worm()
