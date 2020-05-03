@@ -25,9 +25,9 @@ function _update()
   
   --controls matter cap of
   --when worms stop spawning
-  elseif (matter_class.grass_tips < 118) then
+  elseif (world.grass_tips < 118) then
    --lower topmost layer
-   matter_class.grass_tips += 1
+   world.grass_tips += 1
    
    reset_worm()
    
@@ -36,13 +36,13 @@ function _update()
  
  --handles collapsing soil
  elseif (state == "soil") then
-  if (matter_class.collapse_col < 128) then 
+  if (world.collapse_col < 128) then 
    --lower a column each draw
    --cycle
-   reset_matter(matter_class.collapse_col, matter_class.collapse_col)
-   matter_class.collapse_col += 1
+   reset_matter(world.collapse_col, world.collapse_col)
+   world.collapse_col += 1
   else
-   matter_class.collapse_col = 0
+   world.collapse_col = 0
    state = "worm"
   end
  end
@@ -140,7 +140,7 @@ function eat_soil()
  --position as deleted
  if (worm.head.x >= 0)
  and (worm.head.x < 128) then
-  matter_class.matter[flr(worm.head.x)][flr(worm.head.y+0.5)] = 0
+  world.matter[flr(worm.head.x)][flr(worm.head.y+0.5)] = 0
  end
 end
 
@@ -149,7 +149,7 @@ function reset_worm()
  
  --only spawns worm if space
  --in soil for it
- if (matter_class.grass_tips <= 117) then  
+ if (world.grass_tips <= 117) then  
   get_path()
  else
   --worm offscreen if only grass
@@ -165,7 +165,7 @@ function get_path()
   worm.start_y = ceil(rnd(127))
  --ensures worm in soil
  --and under top layer
- until worm.start_y >= matter_class.grass_tips + 10
+ until worm.start_y >= world.grass_tips + 10
  worm.head.y = worm.start_y
   
  repeat
@@ -173,7 +173,7 @@ function get_path()
  --ensures path not too steep
  until ((worm.dest_y > worm.start_y-50)
  and (worm.dest_y < worm.start_y+50))
- and (worm.dest_y >= matter_class.grass_tips + 10)
+ and (worm.dest_y >= world.grass_tips + 10)
 end
 
 function draw_worm()
@@ -200,7 +200,7 @@ function init_matter()
  --holds matrix of all matter;
  --a record of top layer;
  --and a counter for collapsing
- matter_class = {
+ world = {
   matter = {},
   grass_tips = 30,
   collapse_col = 0}
@@ -213,18 +213,18 @@ end
 --with soil or sky
 function reset_matter(a, b)
  for x = a, b do
-  matter_class.matter[x] = {}
+  world.matter[x] = {}
   for y = 0, 127 do
-   if (y < matter_class.grass_tips) then
+   if (y < world.grass_tips) then
     --sky
-    matter_class.matter[x][y] = 12
+    world.matter[x][y] = 12
    else
-    if (y < matter_class.grass_tips+3) then
+    if (y < world.grass_tips+3) then
      --grass
-     matter_class.matter[x][y] = 3
+     world.matter[x][y] = 3
     else
      --soil
-     matter_class.matter[x][y] = 4
+     world.matter[x][y] = 4
     end
    end
   end
@@ -234,9 +234,9 @@ end
 function draw_matter()
  --draw matter pixel by pixel
  --from matrix
- for x in pairs(matter_class.matter) do
-  for y in pairs (matter_class.matter) do
-   pset(x, y, matter_class.matter[x][y])
+ for x in pairs(world.matter) do
+  for y in pairs (world.matter) do
+   pset(x, y, world.matter[x][y])
   end
  end
 end
