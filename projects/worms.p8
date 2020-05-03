@@ -4,7 +4,7 @@ __lua__
 --main--------------------------
 
 function _init()
- init_matter()
+ init_world()
  init_worm()
  
  state = "worm"
@@ -13,15 +13,16 @@ end
 function _update()
  if (state == "worm") then
   update_worm()
- elseif (state == "soil") then
-  update_soil()
+ elseif (state == "collapse ground") then
+  update_matter()
  end
 end
 
 function _draw()
- draw_matter()
+ draw_world()
  draw_worm()
 end
+
 -->8
 --worm--------------------------
 
@@ -81,15 +82,14 @@ function update_worm()
  if (worm.head.x < 200) then
   eat_soil()
  
- --controls matter cap of
- --when worms stop spawning
- elseif (world.grass_tips < 118) then
-  --lower topmost layer
-  world.grass_tips += 1
+ --min world height prevents
+ --worms from spawning
+ elseif (world.grass_tip_height < 118) then
+  world.grass_tip_height += 1
    
   reset_worm()
    
-  state = "soil"
+  state = "collapse ground"
  end
 end
 
@@ -137,13 +137,11 @@ end
 function reset_worm()
  worm.head.x = -1
  
- --only spawns worm if space
- --in soil for it
- if (world.grass_tips <= 117) then  
+ --Moves worm offscreen when
+ --ground limited
+ if (world.grass_tip_height <= 117) then  
   get_path()
  else
-  --worm offscreen if only grass
-  --and one row of dirt remains
   worm.head.y = -100
  end
  
@@ -155,7 +153,7 @@ function get_path()
   worm.start_y = ceil(rnd(127))
  --ensures worm in soil
  --and under top layer
- until worm.start_y >= world.grass_tips + 10
+ until worm.start_y >= world.grass_tip_height + 10
  worm.head.y = worm.start_y
   
  repeat
@@ -163,7 +161,7 @@ function get_path()
  --ensures path not too steep
  until ((worm.dest_y > worm.start_y-50)
  and (worm.dest_y < worm.start_y+50))
- and (worm.dest_y >= world.grass_tips + 10)
+ and (worm.dest_y >= world.grass_tip_height + 10)
 end
 
 function draw_worm()
@@ -183,45 +181,47 @@ function draw_worm()
   current_part = current_part.next_part
  end
 end
--->8
---matter------------------------
 
-function init_matter()
+-->8
+--world-------------------------
+
+function init_world()
  --holds matrix of all matter;
  --a record of top layer;
  --and a counter for collapsing
  world = {
   matter = {},
-  grass_tips = 30,
-  collapse_col = 0}
+  grass_tip_height = 30,
+  col_tracker = 0}
+
  --populates matter matrix for 
  --full screen
  reset_matter(0, 127)
 end
 
-function update_soil()
- if (world.collapse_col < 128) then 
+function update_matter()
+ if (world.col_tracker < 128) then 
   --lower a column each draw
   --cycle
-  reset_matter(world.collapse_col, world.collapse_col)
-  world.collapse_col += 1
+  reset_matter(world.col_tracker, world.col_tracker)
+  world.col_tracker += 1
  else
-  world.collapse_col = 0
+  world.col_tracker = 0
   state = "worm"
  end
 end
 
 --populate each pixel
---with soil or sky
+--of the world
 function reset_matter(a, b)
  for x = a, b do
   world.matter[x] = {}
   for y = 0, 127 do
-   if (y < world.grass_tips) then
+   if (y < world.grass_tip_height) then
     --sky
     world.matter[x][y] = 12
    else
-    if (y < world.grass_tips+3) then
+    if (y < world.grass_tip_height+3) then
      --grass
      world.matter[x][y] = 3
     else
@@ -233,9 +233,7 @@ function reset_matter(a, b)
  end
 end
 
-function draw_matter()
- --draw matter pixel by pixel
- --from matrix
+function draw_world()
  for x in pairs(world.matter) do
   for y in pairs (world.matter) do
    pset(x, y, world.matter[x][y])
