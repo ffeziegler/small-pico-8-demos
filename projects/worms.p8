@@ -84,7 +84,7 @@ function update_worm()
  
  --min world height prevents
  --worms from spawning
- elseif (world.grass_tip_height < 118) then
+ elseif (world.grass_tip_height < world.height_limit) then
   world.grass_tip_height += 1
    
   reset_worm()
@@ -139,7 +139,7 @@ function reset_worm()
  
  --Moves worm offscreen when
  --ground limited
- if (world.grass_tip_height <= 117) then  
+ if (world.grass_tip_height < world.height_limit) then  
   get_path()
  else
   worm.head.y = -100
@@ -153,7 +153,7 @@ function get_path()
   worm.start_y = ceil(rnd(127))
  --ensures worm in soil
  --and under top layer
- until worm.start_y >= world.grass_tip_height + 10
+ until worm.start_y >= world.grass_tip_height + (128-world.height_limit)
  worm.head.y = worm.start_y
   
  repeat
@@ -161,7 +161,7 @@ function get_path()
  --ensures path not too steep
  until ((worm.dest_y > worm.start_y-50)
  and (worm.dest_y < worm.start_y+50))
- and (worm.dest_y >= world.grass_tip_height + 10)
+ and (worm.dest_y >= world.grass_tip_height + (128-world.height_limit))
 end
 
 function draw_worm()
@@ -192,6 +192,7 @@ function init_world()
  world = {
   matter = {},
   grass_tip_height = 30,
+  height_limit = 118,
   col_tracker = 0}
 
  --populates matter matrix for 
