@@ -84,9 +84,7 @@ function update_worm()
  
  --min world height prevents
  --worms from spawning
- elseif (world.grass_tip_height < world.height_limit) then
-  world.grass_tip_height += 1
-   
+ else
   reset_worm()
    
   state = "collapse ground"
