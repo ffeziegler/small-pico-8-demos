@@ -10,6 +10,8 @@ end
 
 function _update()
   update_worm()
+  
+  if (refill.active) update_refill()
 end
 
 function _draw()
@@ -91,6 +93,11 @@ end
 function update_head()
  worm.head.x += worm.speed
  
+ if (worm.head.x >= (75*worm.speed))
+ then
+  refill.active = true
+ end
+ 
  --height relative to
  --horizontal distance
  --travelled
@@ -136,6 +143,8 @@ function reset_worm()
  end
  
  worm.speed = (ceil(rnd(70))+30)/100
+
+ reset_refill()
 end
 
 function get_path()
@@ -188,6 +197,29 @@ function init_world()
  --populates matter matrix for 
  --full screen
  reset_matter(0, 127)
+end
+
+function reset_refill()
+ refill = {x = worm.head.x,
+ y = worm.head.y,
+ active = false}
+end
+
+function update_refill()
+ refill.x += worm.speed
+ refill.y += (((worm.dest_y - worm.start_y) 
+  / 127)
+  * worm.speed)
+  + sin(flr(refill.x)/5)/2
+ 
+ refill_soil()
+end
+
+function refill_soil()
+ if (refill.x >= 0)
+ and (refill.x < 128) then
+  world.matter[flr(refill.x)][flr(refill.y+0.5)] = 4
+ end
 end
 
 function update_matter()
