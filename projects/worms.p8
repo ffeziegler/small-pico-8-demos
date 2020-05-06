@@ -6,16 +6,10 @@ __lua__
 function _init()
  init_world()
  init_worm()
- 
- state = "worm"
 end
 
 function _update()
- if (state == "worm") then
   update_worm()
- elseif (state == "collapse ground") then
-  update_matter()
- end
 end
 
 function _draw()
@@ -86,8 +80,6 @@ function update_worm()
  --worms from spawning
  else
   reset_worm()
-   
-  state = "collapse ground"
  end
 end
 
@@ -206,7 +198,6 @@ function update_matter()
   world.col_tracker += 1
  else
   world.col_tracker = 0
-  state = "worm"
  end
 end
 
