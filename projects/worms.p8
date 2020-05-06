@@ -10,7 +10,6 @@ end
 
 function _update()
   update_worm()
-  
   if (refill.active) update_refill()
 end
 
@@ -134,13 +133,7 @@ end
 function reset_worm()
  worm.head.x = -1
  
- --Moves worm offscreen when
- --ground limited
- if (world.grass_tip_height < world.height_limit) then  
-  get_path()
- else
-  worm.head.y = -100
- end
+ get_path()
  
  worm.speed = (ceil(rnd(70))+30)/100
 
@@ -152,7 +145,7 @@ function get_path()
   worm.start_y = ceil(rnd(127))
  --ensures worm in soil
  --and under top layer
- until worm.start_y >= world.grass_tip_height + (128-world.height_limit)
+ until worm.start_y >= world.grass_tip_height + 10
  worm.head.y = worm.start_y
   
  repeat
@@ -160,7 +153,7 @@ function get_path()
  --ensures path not too steep
  until ((worm.dest_y > worm.start_y-50)
  and (worm.dest_y < worm.start_y+50))
- and (worm.dest_y >= world.grass_tip_height + (128-world.height_limit))
+ and (worm.dest_y >= world.grass_tip_height + 10)
 end
 
 function draw_worm()
@@ -190,9 +183,7 @@ function init_world()
  --and a counter for collapsing
  world = {
   matter = {},
-  grass_tip_height = 30,
-  height_limit = 118,
-  col_tracker = 0}
+  grass_tip_height = 30}
 
  --populates matter matrix for 
  --full screen
@@ -206,31 +197,24 @@ function reset_refill()
 end
 
 function update_refill()
+ move_refill()
+ 
+ if (refill.x >= 0)
+ and (refill.x < 128) then
+  refill_matter()
+ end
+end
+
+function move_refill()
  refill.x += worm.speed
  refill.y += (((worm.dest_y - worm.start_y) 
   / 127)
   * worm.speed)
   + sin(flr(refill.x)/5)/2
- 
- refill_soil()
 end
 
-function refill_soil()
- if (refill.x >= 0)
- and (refill.x < 128) then
+function refill_matter()
   world.matter[flr(refill.x)][flr(refill.y+0.5)] = 4
- end
-end
-
-function update_matter()
- if (world.col_tracker < 128) then 
-  --lower a column each draw
-  --cycle
-  reset_matter(world.col_tracker, world.col_tracker)
-  world.col_tracker += 1
- else
-  world.col_tracker = 0
- end
 end
 
 --populate each pixel
