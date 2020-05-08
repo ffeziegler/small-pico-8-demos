@@ -1,7 +1,7 @@
-# worms
-Animated graphic of worms tunnelling through dirt.
+# slime
+Animated graphic of viscous liquid.
 
 ##Notes:
-* Used to grow my understanding of Lua tables, specifically how to implement linked lists and multi-dimensional tables;
-* Slightly larger scope than the other small projects thus far;
-* Still in progress.
+* Built upon concepts in my rainbow-drips project;
+* Replaced strict randomness in drip speed with drips that are viscous relative to their neighbours, and travel accordingly;
+* Finished for now.
