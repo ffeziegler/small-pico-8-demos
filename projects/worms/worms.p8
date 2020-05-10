@@ -9,8 +9,9 @@ function _init()
 end
 
 function _update()
-  update_worm()
-  if (refill.active) update_refill()
+ get_input()
+ update_worm()
+ if (refill.active) update_refill()
 end
 
 function _draw()
@@ -192,8 +193,15 @@ end
 
 function reset_refill()
  refill = {x = worm.head.x,
- y = worm.head.y,
- active = false}
+  y = worm.head.y,
+  origin_speed = {
+   x = 0,
+   speed = worm.speed,
+   next_change = nil},
+  active = false}
+  
+ current_refill_speed = refill.origin_speed
+ last_refill_speed = refill.origin_speed
 end
 
 function update_refill()
@@ -206,15 +214,25 @@ function update_refill()
 end
 
 function move_refill()
- refill.x += worm.speed
+ check_speed_update(refill.x)
+
+ refill.x += current_refill_speed.speed
  refill.y += (((worm.dest_y - worm.start_y) 
   / 127)
-  * worm.speed)
+  * current_refill_speed.speed)
   + sin(flr(refill.x)/5)/2
 end
 
+function check_speed_update()
+ if (current_refill_speed.next_change) then
+  if (refill.x >= current_refill_speed.next_change.x) then
+   current_refill_speed = current_refill_speed.next_change
+  end
+ end
+end
+
 function refill_matter()
-  world.matter[flr(refill.x)][flr(refill.y+0.5)] = 4
+ world.matter[flr(refill.x)][flr(refill.y+0.5)] = 4
 end
 
 --populate each pixel
@@ -245,6 +263,39 @@ function draw_world()
    pset(x, y, world.matter[x][y])
   end
  end
+end
+-->8
+--controls---------------------
+
+function get_input()
+ --speed
+ if (btn(0)) then
+  change_speed(-0.01)
+  log_speed_change(worm.speed, worm.head.x)
+ elseif (btn(1)) then
+  change_speed(0.01)
+  log_speed_change(worm.speed, worm.head.x)
+ 
+ --destination
+ elseif (btn(2)) then
+ elseif (btn(3)) then
+ end
+end
+
+function change_speed(change)
+ if (worm.speed+change >= 0.3)
+ and (worm.speed+change <= 1) then
+  worm.speed += change
+ end
+end
+
+function log_speed_change(new_speed, location)
+ last_refill_speed.next_change = {
+  x = location,
+  speed = new_speed,
+  next_change = nil}
+ 
+ last_refill_speed = last_refill_speed.next_change
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
