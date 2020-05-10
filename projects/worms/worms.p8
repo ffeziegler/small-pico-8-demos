@@ -75,7 +75,7 @@ function update_worm()
  
  --respawn a new worm when
  --existing worm off screen
- if (worm.head.x < 200) then
+ if (worm.head.x < 250) then
   eat_soil()
  
  --min world height prevents
