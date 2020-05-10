@@ -93,6 +93,10 @@ end
 function update_head()
  worm.head.x += worm.speed
  
+ --activate the refilling of
+ --the worm's tunnel after
+ --a certain amount of distance
+ --has been travelled
  if (worm.head.x >= (75*worm.speed))
  then
   refill.active = true
@@ -131,6 +135,9 @@ function eat_soil()
  end
 end
 
+--puts the worm off-screen
+--to the left, and gives it
+--new behaviour
 function reset_worm()
  worm.head.x = -1
  
@@ -141,6 +148,9 @@ function reset_worm()
  reset_refill()
 end
 
+--plans the starting and
+--destination heights for the
+--new worm
 function get_path()
  repeat
   worm.start_y = ceil(rnd(127))
@@ -191,6 +201,9 @@ function init_world()
  reset_matter(0, 127)
 end
 
+--creates a table to handle
+--the refilling of the worm's
+--tunnel
 function reset_refill()
  refill = {x = worm.head.x,
   y = worm.head.y,
@@ -198,31 +211,55 @@ function reset_refill()
    x = 0,
    speed = worm.speed,
    next_change = nil},
+  origin_dest = {
+   x = 0,
+   dest = worm.dest_y,
+   next_change = nil},
   active = false}
-  
+
+ --tracks active and tail items
+ --in the linked lists
  current_refill_speed = refill.origin_speed
  last_refill_speed = refill.origin_speed
+ current_refill_dest = refill.origin_dest
+ last_refill_dest = refill.origin_dest
 end
 
+--advance refill path one pixel
 function update_refill()
  move_refill()
  
+ --when onscreen
  if (refill.x >= 0)
  and (refill.x < 128) then
   refill_matter()
  end
 end
 
+--updates position in worm's
+--tunnel to refill
 function move_refill()
- check_speed_update(refill.x)
+ check_input_history()
 
  refill.x += current_refill_speed.speed
- refill.y += (((worm.dest_y - worm.start_y) 
+ refill.y += (((current_refill_dest.dest - worm.start_y) 
   / 127)
   * current_refill_speed.speed)
   + sin(flr(refill.x)/5)/2
 end
 
+--checks history of user input
+--and adjusts refill path
+--at the appropriate location
+--accordingly
+function check_input_history()
+ check_speed_update(refill.x)
+ check_dest_update(refill.x)
+end
+
+--update refill speed when
+--refill matches the location
+--where input was received
 function check_speed_update()
  if (current_refill_speed.next_change) then
   if (refill.x >= current_refill_speed.next_change.x) then
@@ -231,6 +268,19 @@ function check_speed_update()
  end
 end
 
+--update refill destination when
+--refill matches the location
+--where input was received
+function check_dest_update()
+ if (current_refill_dest.next_change) then
+  if (refill.x >= current_refill_dest.next_change.x) then
+   current_refill_dest = current_refill_dest.next_change
+  end
+ end
+end
+
+--fills in a pixel of the
+--worm's path
 function refill_matter()
  world.matter[flr(refill.x)][flr(refill.y+0.5)] = 4
 end
@@ -257,6 +307,8 @@ function reset_matter(a, b)
  end
 end
 
+--draws the environment
+--pixel-by-pixel
 function draw_world()
  for x in pairs(world.matter) do
   for y in pairs (world.matter) do
@@ -267,6 +319,8 @@ end
 -->8
 --controls---------------------
 
+--takes a button press to update
+--worm path
 function get_input()
  --speed
  if (btn(0)) then
@@ -275,20 +329,28 @@ function get_input()
  elseif (btn(1)) then
   change_speed(0.01)
   log_speed_change(worm.speed, worm.head.x)
- 
  --destination
  elseif (btn(2)) then
+  change_destination(-1)
+  log_dest_change(worm.dest_y, worm.head.x)
  elseif (btn(3)) then
+  change_destination(1)
+  log_dest_change(worm.dest_y, worm.head.x)
  end
 end
 
+--apply speed change,
+--if appropriate
 function change_speed(change)
+ --ensure speed is reasonable
  if (worm.speed+change >= 0.3)
- and (worm.speed+change <= 1) then
+ and (worm.speed+change < 1) then
   worm.speed += change
  end
 end
 
+--record position for refill
+--to change speed
 function log_speed_change(new_speed, location)
  last_refill_speed.next_change = {
   x = location,
@@ -296,6 +358,35 @@ function log_speed_change(new_speed, location)
   next_change = nil}
  
  last_refill_speed = last_refill_speed.next_change
+end
+
+--apply destination change,
+--if appropriate
+function change_destination(change)
+ local remaining_dist = 128 - worm.head.x
+ local dest_diff = refill.origin_dest.dest - (worm.dest_y+change)
+ 
+ --ensure underground
+ if (worm.dest_y+change >= world.grass_tip_height + 10)
+ --ensure on screen
+ and (worm.dest_y+change <= 127) then
+  --ensure incline not too steep
+  if (dest_diff/remaining_dist >= -0.39)
+  or (dest_diff/remaining_dist <= 0.39) then
+   worm.dest_y += change
+  end
+ end
+end
+
+--record position for refill
+--to change destination
+function log_dest_change(new_dest, location)
+ last_refill_dest.next_change = {
+  x = location,
+  dest = new_dest,
+  next_change = nil}
+ 
+ last_refill_dest = last_refill_dest.next_change
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
