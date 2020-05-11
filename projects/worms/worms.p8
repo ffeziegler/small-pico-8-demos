@@ -105,8 +105,8 @@ function update_head()
  --height relative to
  --horizontal distance
  --travelled
- worm.head.y += (((worm.dest_y - worm.start_y) 
-  / 127)
+ worm.head.y += (((worm.dest_y - worm.head.y) 
+  / (129-worm.head.x))
   * worm.speed)
   + sin(flr(worm.head.x)/5)/2
 end
@@ -242,8 +242,8 @@ function move_refill()
  check_input_history()
 
  refill.x += current_refill_speed.speed
- refill.y += (((current_refill_dest.dest - worm.start_y) 
-  / 127)
+ refill.y += (((current_refill_dest.dest - refill.y) 
+  / (129-refill.x))
   * current_refill_speed.speed)
   + sin(flr(refill.x)/5)/2
 end
@@ -329,8 +329,10 @@ function get_input()
  elseif (btn(1)) then
   change_speed(0.01)
   log_speed_change(worm.speed, worm.head.x)
+ end
+ 
  --destination
- elseif (btn(2)) then
+ if (btn(2)) then
   change_destination(-1)
   log_dest_change(worm.dest_y, worm.head.x)
  elseif (btn(3)) then
@@ -364,15 +366,17 @@ end
 --if appropriate
 function change_destination(change)
  local remaining_dist = 128 - worm.head.x
- local dest_diff = refill.origin_dest.dest - (worm.dest_y+change)
+ local dest_diff = (worm.head.y - (sin(flr(worm.head.x)/5)/2))
+   - (worm.dest_y+change)
  
  --ensure underground
  if (worm.dest_y+change >= world.grass_tip_height + 10)
  --ensure on screen
  and (worm.dest_y+change <= 127) then
-  --ensure incline not too steep
+  --ensure trajectory not too
+  --steep
   if (dest_diff/remaining_dist >= -0.39)
-  or (dest_diff/remaining_dist <= 0.39) then
+  and (dest_diff/remaining_dist <= 0.39) then
    worm.dest_y += change
   end
  end
