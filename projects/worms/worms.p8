@@ -23,6 +23,21 @@ function _draw()
 end
 
 -->8
+--wiggler----------------------
+--parent to worm and refill
+
+function move_horizontal(object, increment)
+ object.x += increment
+end
+
+function move_vertical(object, dest, speed)
+ object.y += (((dest - object.y) 
+  / (129-object.x))
+  * speed)
+  + sin(flr(object.x)/5)/2
+end
+
+-->8
 --worm--------------------------
 
 function init_worm()
@@ -176,61 +191,6 @@ function draw_worm()
 end
 
 -->8
---world-------------------------
-
-function init_world()
- --holds matrix of all matter;
- --a record of top layer;
- --and a counter for collapsing
- world = {
-  matter = {},
-  grass_tip_height = 30}
-
- --populates matter matrix for 
- --full screen
- reset_matter(0, 127)
-end
-
---populate each pixel
---of the world
-function reset_matter(a, b)
- for x = a, b do
-  world.matter[x] = {}
-  for y = 0, 127 do
-   if (y < world.grass_tip_height) then
-    --sky
-    world.matter[x][y] = 12
-   else
-    if (y < world.grass_tip_height+3) then
-     --grass
-     world.matter[x][y] = 3
-    else
-     --soil
-     world.matter[x][y] = 4
-    end
-   end
-  end
- end
-end
-
-function change_pixel(object, colour)
- --when onscreen
- if (object.x >= 0)
- and (object.x < 128) then
-  world.matter[flr(object.x)][flr(object.y+0.5)] = colour
- end
-end
-
---draws the environment
---pixel-by-pixel
-function draw_world()
- for x in pairs(world.matter) do
-  for y in pairs (world.matter) do
-   pset(x, y, world.matter[x][y])
-  end
- end
-end
--->8
 --refill-----------------------
 
 --creates a table to handle
@@ -305,82 +265,63 @@ function check_dest_update()
   end
  end
 end
+
 -->8
---controls---------------------
+--world-------------------------
 
---takes a button press to update
---worm path
-function get_input()
- --speed
- if (btn(0)) then
-  change_speed(-0.01)
-  log_speed_change(worm.speed, worm.head.x)
- elseif (btn(1)) then
-  change_speed(0.01)
-  log_speed_change(worm.speed, worm.head.x)
- end
- 
- --destination
- if (btn(2)) then
-  change_destination(-1)
-  log_dest_change(worm.dest_y, worm.head.x)
- elseif (btn(3)) then
-  change_destination(1)
-  log_dest_change(worm.dest_y, worm.head.x)
- end
+function init_world()
+ --holds matrix of all matter;
+ --a record of top layer;
+ --and a counter for collapsing
+ world = {
+  matter = {},
+  grass_tip_height = 30}
+
+ --populates matter matrix for 
+ --full screen
+ reset_matter(0, 127)
 end
 
---apply speed change,
---if appropriate
-function change_speed(change)
- --ensure speed is reasonable
- if (worm.speed+change >= 0.3)
- and (worm.speed+change < 1) then
-  worm.speed += change
- end
-end
-
---record position for refill
---to change speed
-function log_speed_change(new_speed, location)
- last_refill_speed.next_change = {
-  x = location,
-  speed = new_speed,
-  next_change = nil}
- 
- last_refill_speed = last_refill_speed.next_change
-end
-
---apply destination change,
---if appropriate
-function change_destination(change)
- local remaining_dist = 128 - worm.head.x
- local dest_diff = (worm.head.y - (sin(flr(worm.head.x)/5)/2))
-   - (worm.dest_y+change)
- 
- --ensure underground
- if (worm.dest_y+change >= world.grass_tip_height + 10)
- --ensure on screen
- and (worm.dest_y+change <= 127) then
-  --ensure trajectory not too
-  --steep
-  if (dest_diff/remaining_dist >= -0.39)
-  and (dest_diff/remaining_dist <= 0.39) then
-   worm.dest_y += change
+--populate each pixel
+--of the world
+function reset_matter(a, b)
+ for x = a, b do
+  world.matter[x] = {}
+  for y = 0, 127 do
+   if (y < world.grass_tip_height) then
+    --sky
+    world.matter[x][y] = 12
+   else
+    if (y < world.grass_tip_height+3) then
+     --grass
+     world.matter[x][y] = 3
+    else
+     --soil
+     world.matter[x][y] = 4
+    end
+   end
   end
  end
 end
 
---record position for refill
---to change destination
-function log_dest_change(new_dest, location)
- last_refill_dest.next_change = {
-  x = location,
-  dest = new_dest,
-  next_change = nil}
- 
- last_refill_dest = last_refill_dest.next_change
+function change_pixel(object, colour)
+ --when onscreen
+ if (object.x >= 0)
+ and (object.x < 128) then
+  world.matter[flr(object.x)][flr(object.y+0.5)] = colour
+ end
 end
+
+--draws the environment
+--pixel-by-pixel
+function draw_world()
+ for x in pairs(world.matter) do
+  for y in pairs (world.matter) do
+   pset(x, y, world.matter[x][y])
+  end
+ end
+end
+
 -->8
 --overworld--------------------
 
@@ -459,19 +400,84 @@ function draw_flowers()
   spr(v.variant,(v.location)*8,22)
  end
 end
+
 -->8
---wiggler----------------------
+--controls---------------------
 
-function move_horizontal(object, increment)
- object.x += increment
+--takes a button press to update
+--worm path
+function get_input()
+ --speed
+ if (btn(0)) then
+  change_speed(-0.01)
+  log_speed_change(worm.speed, worm.head.x)
+ elseif (btn(1)) then
+  change_speed(0.01)
+  log_speed_change(worm.speed, worm.head.x)
+ end
+ 
+ --destination
+ if (btn(2)) then
+  change_destination(-1)
+  log_dest_change(worm.dest_y, worm.head.x)
+ elseif (btn(3)) then
+  change_destination(1)
+  log_dest_change(worm.dest_y, worm.head.x)
+ end
 end
 
-function move_vertical(object, dest, speed)
- object.y += (((dest - object.y) 
-  / (129-object.x))
-  * speed)
-  + sin(flr(object.x)/5)/2
+--apply speed change,
+--if appropriate
+function change_speed(change)
+ --ensure speed is reasonable
+ if (worm.speed+change >= 0.3)
+ and (worm.speed+change < 1) then
+  worm.speed += change
+ end
 end
+
+--record position for refill
+--to change speed
+function log_speed_change(new_speed, location)
+ last_refill_speed.next_change = {
+  x = location,
+  speed = new_speed,
+  next_change = nil}
+ 
+ last_refill_speed = last_refill_speed.next_change
+end
+
+--apply destination change,
+--if appropriate
+function change_destination(change)
+ local remaining_dist = 128 - worm.head.x
+ local dest_diff = (worm.head.y - (sin(flr(worm.head.x)/5)/2))
+   - (worm.dest_y+change)
+ 
+ --ensure underground
+ if (worm.dest_y+change >= world.grass_tip_height + 10)
+ --ensure on screen
+ and (worm.dest_y+change <= 127) then
+  --ensure trajectory not too
+  --steep
+  if (dest_diff/remaining_dist >= -0.39)
+  and (dest_diff/remaining_dist <= 0.39) then
+   worm.dest_y += change
+  end
+ end
+end
+
+--record position for refill
+--to change destination
+function log_dest_change(new_dest, location)
+ last_refill_dest.next_change = {
+  x = location,
+  dest = new_dest,
+  next_change = nil}
+ 
+ last_refill_dest = last_refill_dest.next_change
+end
+
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000000000008980000028200000e2e00000141000006560000000000000000000000000000000000000000000000000000000000000000000000000000000000
