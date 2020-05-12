@@ -204,6 +204,40 @@ function init_world()
  reset_matter(0, 127)
 end
 
+--populate each pixel
+--of the world
+function reset_matter(a, b)
+ for x = a, b do
+  world.matter[x] = {}
+  for y = 0, 127 do
+   if (y < world.grass_tip_height) then
+    --sky
+    world.matter[x][y] = 12
+   else
+    if (y < world.grass_tip_height+3) then
+     --grass
+     world.matter[x][y] = 3
+    else
+     --soil
+     world.matter[x][y] = 4
+    end
+   end
+  end
+ end
+end
+
+--draws the environment
+--pixel-by-pixel
+function draw_world()
+ for x in pairs(world.matter) do
+  for y in pairs (world.matter) do
+   pset(x, y, world.matter[x][y])
+  end
+ end
+end
+-->8
+--refill-----------------------
+
 --creates a table to handle
 --the refilling of the worm's
 --tunnel
@@ -286,38 +320,6 @@ end
 --worm's path
 function refill_matter()
  world.matter[flr(refill.x)][flr(refill.y+0.5)] = 4
-end
-
---populate each pixel
---of the world
-function reset_matter(a, b)
- for x = a, b do
-  world.matter[x] = {}
-  for y = 0, 127 do
-   if (y < world.grass_tip_height) then
-    --sky
-    world.matter[x][y] = 12
-   else
-    if (y < world.grass_tip_height+3) then
-     --grass
-     world.matter[x][y] = 3
-    else
-     --soil
-     world.matter[x][y] = 4
-    end
-   end
-  end
- end
-end
-
---draws the environment
---pixel-by-pixel
-function draw_world()
- for x in pairs(world.matter) do
-  for y in pairs (world.matter) do
-   pset(x, y, world.matter[x][y])
-  end
- end
 end
 -->8
 --controls---------------------
