@@ -17,7 +17,7 @@ function _update()
 end
 
 function _draw()
- draw_world()
+ world:draw_world()
  draw_overworld()
  draw_worm()
 end
@@ -96,7 +96,7 @@ function update_worm()
  if (worm.head.x < 128) then
   --mark soil at current worm
   --position as deleted
-  change_pixel(worm.head, 0)
+  world:change_pixel(worm.head, 0)
  
  --min world height prevents
  --worms from spawning
@@ -223,7 +223,7 @@ function update_refill()
  
  --fills in a pixel of the
  --worm's path
- change_pixel(refill, 4)
+ world:change_pixel(refill, 4)
 end
 
 --updates position in worm's
@@ -277,47 +277,47 @@ function init_world()
   matter = {},
   grass_tip_height = 30}
 
- --populates matter matrix for 
- --full screen
- reset_matter(0, 127)
-end
-
---populate each pixel
---of the world
-function reset_matter(a, b)
- for x = a, b do
-  world.matter[x] = {}
-  for y = 0, 127 do
-   if (y < world.grass_tip_height) then
-    --sky
-    world.matter[x][y] = 12
-   else
-    if (y < world.grass_tip_height+3) then
-     --grass
-     world.matter[x][y] = 3
+ --populate each pixel
+ --of the world
+ function world:reset_matter(a, b)
+  for x = a, b do
+   self.matter[x] = {}
+   for y = 0, 127 do
+    if (y < self.grass_tip_height) then
+     --sky
+     self.matter[x][y] = 12
     else
-     --soil
-     world.matter[x][y] = 4
+     if (y < self.grass_tip_height+3) then
+      --grass
+      self.matter[x][y] = 3
+     else
+      --soil
+      self.matter[x][y] = 4
+     end
     end
    end
   end
  end
-end
 
-function change_pixel(object, colour)
- --when onscreen
- if (object.x >= 0)
- and (object.x < 128) then
-  world.matter[flr(object.x)][flr(object.y+0.5)] = colour
+ --populates matter matrix for 
+ --full screen
+ world:reset_matter(0, 127)
+
+ function world:change_pixel(object, colour)
+  --when onscreen
+  if (object.x >= 0)
+  and (object.x < 128) then
+   self.matter[flr(object.x)][flr(object.y+0.5)] = colour
+  end
  end
-end
 
---draws the environment
---pixel-by-pixel
-function draw_world()
- for x in pairs(world.matter) do
-  for y in pairs (world.matter) do
-   pset(x, y, world.matter[x][y])
+ --draws the environment
+ --pixel-by-pixel
+ function world:draw_world()
+  for x in pairs(self.matter) do
+   for y in pairs (self.matter) do
+    pset(x, y, self.matter[x][y])
+   end
   end
  end
 end
