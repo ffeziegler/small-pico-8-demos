@@ -94,7 +94,7 @@ function move_worm()
 end
 
 function update_head()
- worm.head.x += worm.speed
+ move_horizontal(worm.head, worm.speed)
  
  --activate the refilling of
  --the worm's tunnel after
@@ -105,13 +105,7 @@ function update_head()
   refill.active = true
  end
  
- --height relative to
- --horizontal distance
- --travelled
- worm.head.y += (((worm.dest_y - worm.head.y) 
-  / (129-worm.head.x))
-  * worm.speed)
-  + sin(flr(worm.head.x)/5)/2
+ move_vertical(worm.head, worm.dest_y, worm.speed)
 end
 
 function update_body()
@@ -278,11 +272,8 @@ end
 function move_refill()
  check_input_history()
 
- refill.x += current_refill_speed.speed
- refill.y += (((current_refill_dest.dest - refill.y) 
-  / (129-refill.x))
-  * current_refill_speed.speed)
-  + sin(flr(refill.x)/5)/2
+ move_horizontal(refill, current_refill_speed.speed)
+ move_vertical(refill, current_refill_dest.dest, current_refill_speed.speed)
 end
 
 --checks history of user input
@@ -474,6 +465,19 @@ function draw_flowers()
  for k, v in pairs(flowers) do
   spr(v.variant,(v.location)*8,22)
  end
+end
+-->8
+--wiggler----------------------
+
+function move_horizontal(object, increment)
+ object.x += increment
+end
+
+function move_vertical(object, dest, speed)
+ object.y += (((dest - object.y) 
+  / (129-object.x))
+  * speed)
+  + sin(flr(object.x)/5)/2
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
