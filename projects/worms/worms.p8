@@ -79,7 +79,9 @@ function update_worm()
  --respawn a new worm when
  --existing worm off screen
  if (worm.head.x < 128) then
-  eat_soil()
+  --mark soil at current worm
+  --position as deleted
+  change_pixel(worm.head, 0)
  
  --min world height prevents
  --worms from spawning
@@ -120,15 +122,6 @@ function update_body()
   current.x = current.prev_part.x
   current.y = current.prev_part.y
   current = current.prev_part
- end
-end
-
-function eat_soil()
- --mark soil at current worm
- --position as deleted
- if (worm.head.x >= 0)
- and (worm.head.x < 128) then
-  world.matter[flr(worm.head.x)][flr(worm.head.y+0.5)] = 0
  end
 end
 
@@ -220,6 +213,14 @@ function reset_matter(a, b)
  end
 end
 
+function change_pixel(object, colour)
+ --when onscreen
+ if (object.x >= 0)
+ and (object.x < 128) then
+  world.matter[flr(object.x)][flr(object.y+0.5)] = colour
+ end
+end
+
 --draws the environment
 --pixel-by-pixel
 function draw_world()
@@ -260,11 +261,9 @@ end
 function update_refill()
  move_refill()
  
- --when onscreen
- if (refill.x >= 0)
- and (refill.x < 128) then
-  refill_matter()
- end
+ --fills in a pixel of the
+ --worm's path
+ change_pixel(refill, 4)
 end
 
 --updates position in worm's
@@ -305,12 +304,6 @@ function check_dest_update()
    current_refill_dest = current_refill_dest.next_change
   end
  end
-end
-
---fills in a pixel of the
---worm's path
-function refill_matter()
- world.matter[flr(refill.x)][flr(refill.y+0.5)] = 4
 end
 -->8
 --controls---------------------
