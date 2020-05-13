@@ -6,18 +6,25 @@ __lua__
 function _init()
  init_world()
  init_overworld()
- init_worm()
+ init_worm(world:get_grass_height())
  init_refill(worm.head, worm)
 end
 
 function _update()
  get_input()
  update_overworld()
- update_worm()
+ move(worm.head, worm.speed, worm.dest_y) 
+ update_body()
  handle_refill()
- handle_new_worm()
+ update_world()
+ 
+ --when offscreen
+ if (get_x(refill) > 150) then
+  handle_new_worm()
+ end
 end
 
+--activate or update refill
 function handle_refill()
  if (not refill.active) then
   if (get_x(worm.head) >= (75*get_speed(worm))) then
@@ -28,15 +35,22 @@ function handle_refill()
    refill:set_active(true)
   end
  else
-  update_refill()
+  check_input_history()
+  move(refill, current_refill_speed.speed, current_refill_dest.dest)
  end
 end
 
+--gemerate a new worm
 function handle_new_worm()
- if (get_x(refill) > 150) then
-  reset_worm()
-  init_refill(worm.head, worm)
- end
+ reset_worm(world:get_grass_height())
+ init_refill(worm.head, worm)
+end
+
+--update matter to reflect
+--movement
+function update_world()
+ world:change_pixel(worm.head, 0)
+ world:change_pixel(refill, 4)
 end
 
 function _draw()
@@ -46,8 +60,8 @@ function _draw()
 end
 
 -->8
---wiggler----------------------
---parent to worm and refill
+--wiggler-----------------------
+--"parent" to worm and refill
 
 function get_x(object)
  return object.x
@@ -55,6 +69,11 @@ end
 
 function get_speed(object)
  return object.speed
+end
+
+function move(object, speed, dest)
+ move_horizontal(object, speed)
+ move_vertical(object, dest, speed)
 end
 
 function move_horizontal(object, increment)
@@ -69,9 +88,9 @@ function move_vertical(object, dest, speed)
 end
 
 -->8
---worm--------------------------
+--worm---------------------------
 
-function init_worm()
+function init_worm(world_height)
  worm = {
   --doubly linked list for
   --drawing worm as contiguous
@@ -86,12 +105,12 @@ function init_worm()
   dest_y = 0,
   speed = 0}
   
- generate_base_values()
+ generate_base_values(world_height)
 end
 
-function generate_base_values()
+function generate_base_values(world_height)
  --generate non-list vals
- reset_worm()
+ reset_worm(world_height)
  
  --set list length and populate
  --with coordinates that are
@@ -119,26 +138,6 @@ function generate_base_values()
  tail = current_part
 end
 
-function update_worm()
- move_worm()
- 
- if (worm.head.x < 128) then
-  --mark soil at current worm
-  --position as deleted
-  world:change_pixel(worm.head, 0)
- end
-end
-
-function move_worm()
- update_head()
- update_body() 
-end
-
-function update_head()
- move_horizontal(worm.head, worm.speed)
- move_vertical(worm.head, worm.dest_y, worm.speed)
-end
-
 function update_body()
  local current = tail
  
@@ -157,10 +156,10 @@ end
 --puts the worm off-screen
 --to the left, and gives it
 --new behaviour
-function reset_worm()
+function reset_worm(world_height)
  worm.head.x = -1
  
- get_path()
+ get_path(world_height)
  
  worm.speed = (ceil(rnd(70))+30)/100
 end
@@ -168,12 +167,12 @@ end
 --plans the starting and
 --destination heights for the
 --new worm
-function get_path()
+function get_path(world_height)
  repeat
   worm.start_y = ceil(rnd(127))
  --ensures worm in soil
  --and under top layer
- until worm.start_y >= world.grass_tip_height + 10
+ until worm.start_y >= world_height + 10
  worm.head.y = worm.start_y
   
  repeat
@@ -181,7 +180,7 @@ function get_path()
  --ensures path not too steep
  until ((worm.dest_y > worm.start_y-50)
  and (worm.dest_y < worm.start_y+50))
- and (worm.dest_y >= world.grass_tip_height + 10)
+ and (worm.dest_y >= world_height + 10)
 end
 
 function draw_worm()
@@ -203,7 +202,7 @@ function draw_worm()
 end
 
 -->8
---refill-----------------------
+--refill------------------------
 
 --creates a table to handle
 --the refilling of the tunnel
@@ -232,50 +231,25 @@ function init_refill(maker_coord, maker)
  end
 end
 
---advance refill path one pixel
-function update_refill()
- move_refill()
- world:change_pixel(refill, 4)
-end
-
---updates position in worm's
---tunnel to refill
-function move_refill()
- check_input_history()
-
- move_horizontal(refill, current_refill_speed.speed)
- move_vertical(refill, current_refill_dest.dest, current_refill_speed.speed)
-end
-
 --checks history of user input
 --and adjusts refill path
 --at the appropriate location
 --accordingly
 function check_input_history()
- check_speed_update(refill.x)
- check_dest_update(refill.x)
+ current_refill_speed = check_for_update(current_refill_speed)
+ current_refill_dest = check_for_update(current_refill_dest)
 end
 
---update refill speed when
+--update refill path when
 --refill matches the location
 --where input was received
-function check_speed_update()
- if (current_refill_speed.next_change) then
-  if (refill.x >= current_refill_speed.next_change.x) then
-   current_refill_speed = current_refill_speed.next_change
+function check_for_update(item)
+ if (item.next_change) then
+  if (refill.x >= item.next_change.x) then
+   return item.next_change
   end
  end
-end
-
---update refill destination when
---refill matches the location
---where input was received
-function check_dest_update()
- if (current_refill_dest.next_change) then
-  if (refill.x >= current_refill_dest.next_change.x) then
-   current_refill_dest = current_refill_dest.next_change
-  end
- end
+ return item
 end
 
 -->8
@@ -332,10 +306,14 @@ function init_world()
    end
   end
  end
+ 
+ function world:get_grass_height()
+  return self.grass_tip_height
+ end
 end
 
 -->8
---overworld--------------------
+--overworld---------------------
 
 function init_overworld()
  init_clouds()
@@ -414,7 +392,7 @@ function draw_flowers()
 end
 
 -->8
---controls---------------------
+--controls----------------------
 
 --takes a button press to update
 --worm path
