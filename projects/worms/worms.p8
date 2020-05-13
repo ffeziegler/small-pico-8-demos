@@ -7,13 +7,36 @@ function _init()
  init_world()
  init_overworld()
  init_worm()
+ init_refill(worm.head, worm)
 end
 
 function _update()
  get_input()
  update_overworld()
  update_worm()
- if (refill.active) update_refill()
+ handle_refill()
+ handle_new_worm()
+end
+
+function handle_refill()
+ if (not refill.active) then
+  if (get_x(worm.head) >= (75*get_speed(worm))) then
+   --activate the refilling of
+   --the worm's tunnel after
+   --a certain amount of distance
+   --has been travelled
+   refill:set_active(true)
+  end
+ else
+  update_refill()
+ end
+end
+
+function handle_new_worm()
+ if (get_x(refill) > 150) then
+  reset_worm()
+  init_refill(worm.head, worm)
+ end
 end
 
 function _draw()
@@ -25,6 +48,14 @@ end
 -->8
 --wiggler----------------------
 --parent to worm and refill
+
+function get_x(object)
+ return object.x
+end
+
+function get_speed(object)
+ return object.speed
+end
 
 function move_horizontal(object, increment)
  object.x += increment
@@ -91,17 +122,10 @@ end
 function update_worm()
  move_worm()
  
- --respawn a new worm when
- --existing worm off screen
  if (worm.head.x < 128) then
   --mark soil at current worm
   --position as deleted
   world:change_pixel(worm.head, 0)
- 
- --min world height prevents
- --worms from spawning
- elseif (refill.x > 150) then
-  reset_worm()
  end
 end
 
@@ -112,16 +136,6 @@ end
 
 function update_head()
  move_horizontal(worm.head, worm.speed)
- 
- --activate the refilling of
- --the worm's tunnel after
- --a certain amount of distance
- --has been travelled
- if (worm.head.x >= (75*worm.speed))
- then
-  refill.active = true
- end
- 
  move_vertical(worm.head, worm.dest_y, worm.speed)
 end
 
@@ -149,8 +163,6 @@ function reset_worm()
  get_path()
  
  worm.speed = (ceil(rnd(70))+30)/100
-
- reset_refill()
 end
 
 --plans the starting and
@@ -194,18 +206,17 @@ end
 --refill-----------------------
 
 --creates a table to handle
---the refilling of the worm's
---tunnel
-function reset_refill()
- refill = {x = worm.head.x,
-  y = worm.head.y,
+--the refilling of the tunnel
+function init_refill(maker_coord, maker)
+ refill = {x = maker_coord.x,
+  y = maker_coord.y,
   origin_speed = {
    x = 0,
-   speed = worm.speed,
+   speed = maker.speed,
    next_change = nil},
   origin_dest = {
    x = 0,
-   dest = worm.dest_y,
+   dest = maker.dest_y,
    next_change = nil},
   active = false}
 
@@ -215,14 +226,15 @@ function reset_refill()
  last_refill_speed = refill.origin_speed
  current_refill_dest = refill.origin_dest
  last_refill_dest = refill.origin_dest
+
+ function refill:set_active(new)
+  self.active = new
+ end
 end
 
 --advance refill path one pixel
 function update_refill()
  move_refill()
- 
- --fills in a pixel of the
- --worm's path
  world:change_pixel(refill, 4)
 end
 
