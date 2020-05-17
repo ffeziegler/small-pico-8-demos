@@ -1,0 +1,1 @@
+Holds images that are used in other READMEs, for relative links.
