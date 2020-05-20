@@ -81,9 +81,20 @@ end
 
 function _draw()
  cls(0) --wipe frame to black
+ 
+ --draw all parts of animation
  draw_light()
  draw_particles()
  draw_stick()
+ 
+ --prompt reset after match
+ --is mostly burned
+ if (match_top >= 115) then
+  print("press ctrl+r to reset",
+   22,
+   5,
+   13)
+ end
 end
 
 function draw_light()
