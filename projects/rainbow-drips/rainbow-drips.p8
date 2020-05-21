@@ -6,6 +6,7 @@ __lua__
 drip_col=16
 bg_col=0
 drips={}
+start = time()
 
 function _init()
  cls(bg_col)
@@ -60,15 +61,19 @@ end
 function _draw()
  foreach(drips,draw_drip)
  
- --overlay controls
- print("press ⬆️⬇️ to change drips",
-  5,
-  110,
-  bg_col)
- print("press ⬅️➡️ to change bg",
-  5,
-  118,
-  bg_col)
+ --displays controls a few
+ --seconds after all drips
+ --have reached the bottom
+ if (time() - start) > 30 then
+  print("press ⬆️⬇️ to change drips",
+   5,
+   110,
+   bg_col)
+  print("press ⬅️➡️ to change bg",
+   5,
+   118,
+   bg_col)
+ end
 end
 
 --paints a pixel at the current
@@ -81,13 +86,15 @@ end
 -->8
 --button presses
 
---changes drip colour
+--changes drip colour on
+--vertical key press
 function update_drip_col()
  --up pressed
  if (btnp(2)) then
   --below max cap
   if (drip_col < 16) then
    drip_col += 1
+   start = time()
   	
    --if in rainbow mode,
    --randomise first colour
@@ -108,6 +115,7 @@ function update_drip_col()
   --above min cap
   if (drip_col > 0) then
    drip_col -= 1
+   start = time()
    for v in all(drips) do
     v.col = drip_col
    end
@@ -116,28 +124,31 @@ function update_drip_col()
  end
 end
 
---changes background colour
+--reacts to horizontal key
+--input to update background
+--colour
 function update_bg_col()
  --left pressed
  if (btnp(0)) then
   if (bg_col > 0) then
-   original = bg_col
-   bg_col -= 1
-   update_bg(original, bg_col)
-
-   foreach(drips,restore_drips)
+   change_col(-1)
   end
 
  --right pressed
  elseif (btnp(1)) then
   if (bg_col < 15) then
-   original = bg_col
-   bg_col += 1
-   update_bg(original, bg_col)
-
-   foreach(drips,restore_drips)
+   change_col(1)
   end
  end
+end
+
+--applies change to background
+--colour
+function change_col(col)
+ original = bg_col
+ bg_col += col
+ update_bg(original, bg_col)
+ foreach(drips,restore_drips)
 end
 
 --preserves drips by painting
