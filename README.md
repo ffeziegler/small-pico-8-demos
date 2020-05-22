@@ -3,8 +3,11 @@ Code I have written appears in the .p8 file within each separate project's sub-d
 
 ## Download (Windows):
 
-To download and run a project file, navigate to the relative directory as follows: 
-small-pico8-demos\projects\[name]\[name].bin\windows
+To download and run a project file, navigate to the relative directory as follows:
+ 
+**small-pico8-demos\projects\\[name]\\[name].bin\windows**
+
+For example:
 
 ![relative directory view in worms project](images/main_download.png)
 
