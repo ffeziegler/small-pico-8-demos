@@ -5,7 +5,7 @@ Code I have written appears in the .p8 file within each separate project's sub-d
 
 To download and run a project file, navigate to the relative directory as follows:
  
-*small-pico8-demos*\\*projects*\\*[name]*\\*[name]*.*bin\windows*
+*small-pico8-demos*\\*projects*\\*[name]*\\*[name]*.*bin*\\*windows*
 
 For example:
 
