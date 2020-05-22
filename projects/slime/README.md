@@ -3,7 +3,7 @@ Animated graphic of viscous liquid.
 
 ## Preview:
 
-![demo of slime project](images/slime.gif)
+![demo of slime project](../../images/slime.gif)
 
 ## Notes:
 * Built upon concepts in my rainbow-drips project;

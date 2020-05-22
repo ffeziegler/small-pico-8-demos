@@ -3,7 +3,7 @@ Very simple, interactive simulation of multi-coloured drips.
 
 ## Preview:
 
-![demo of rainbow-drips project](images/rainbow-drips.gif)
+![demo of rainbow-drips project](../../images/rainbow-drips.gif)
 
 ## Controls:
 * Up/Down - Change drip colour (resets drips)

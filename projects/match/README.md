@@ -3,7 +3,7 @@ Simple animation of a burning matchstick.
 
 ## Preview:
 
-![demo of match project](images/match.gif)
+![demo of match project](../../images/match.gif)
 
 ## Notes:
 * Further practice with Lua tables;
