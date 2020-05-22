@@ -4,7 +4,7 @@ Press the arrow keys to change the worm's destination and speed.
 
 ## Preview:
 
-![demo of worms project with user inputs](images/worms.gif)
+![demo of worms project with user inputs](../../images/worms.gif)
 
 ## Controls:
 * Up - Raise worm destination
